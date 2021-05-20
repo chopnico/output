@@ -8,7 +8,6 @@ import (
 
 func maxLabelSize(entries []interface{}) int {
 	var labels []string
-
 	for _, entry := range entries {
 		iface := reflect.ValueOf(entry)
 		for i := 0; i < iface.NumField(); i++ {
@@ -26,7 +25,23 @@ func maxLabelSize(entries []interface{}) int {
 	return max
 }
 
-func padLabel(label string, maxSize int, alignment string) string {
+func maxPropertySize(properties []string) int {
+	var labels []string
+	for i := 0; i < len(properties); i++ {
+		labels = append(labels, properties[i])
+	}
+
+	var max int
+	for _, label := range labels {
+		if max < len(label) {
+			max = len(label)
+		}
+	}
+
+	return max
+}
+
+func padLabel(label string, maxSize int) string {
 	l := label
 	for i := 0; i < maxSize - len(label); i++ {
 		l += " "
@@ -35,37 +50,71 @@ func padLabel(label string, maxSize int, alignment string) string {
 	return l
 }
 
-func FormatList(entries []interface{}, seperator, alignment string) string {
-	maxLabelSize := maxLabelSize(entries)
+func labelExist(a []string, x string) bool {
+	for _, n := range a {
+		if x == n {
+			return true
+		}
+	}
+	return false
+}
+
+func buildListEntry(builder *strings.Builder, field *reflect.Value, fieldName string, maxLabelSize int) {
+	builder.WriteString(padLabel(fieldName, maxLabelSize))
+	builder.WriteString(" : ")
+
+	switch field.Kind() {
+	case reflect.Slice:
+		for f := 0; f < field.Len(); f++ {
+			if f != field.Len() - 1 {
+				builder.WriteString(fmt.Sprintf("%v, ", field.Index(f)))
+			} else {
+				builder.WriteString(fmt.Sprintf("%v", field.Index(f)))
+			}
+		}
+	default:
+		builder.WriteString(fmt.Sprintf("%v", field))
+	}
+}
+
+func FormatList(entries []interface{}, properties []string) string {
 	builder := strings.Builder{}
 
 	for index, entry := range entries {
-		iface := reflect.ValueOf(entry)
+		iface := reflect.Indirect(reflect.ValueOf(entry))
 
-		for i := 0; i < iface.NumField(); i++ {
-			builder.WriteString(padLabel(iface.Type().Field(i).Name, maxLabelSize, alignment))
-			builder.WriteString(" " + seperator + " ")
+		if properties != nil {
+			maxLabelSize := maxPropertySize(properties)
+			for i := 0; i < len(properties); i++ {
+				field := iface.Field(i)
+				fieldName := iface.Type().Field(i).Name
 
-			switch iface.Field(i).Kind() {
-			case reflect.Slice:
-				for f := 0; f < iface.Field(i).Len(); f++ {
-					if f != iface.Field(i).Len() - 1{
-						builder.WriteString(fmt.Sprintf("%v, ", iface.Field(i).Index(f)))
-					} else {
-						builder.WriteString(fmt.Sprintf("%v", iface.Field(i).Index(f)))
-					}
+				buildListEntry(&builder, &field, fieldName, maxLabelSize)
+
+				if i < len(properties) - 1 {
+					builder.WriteString("\n")
 				}
-			default:
-				builder.WriteString(fmt.Sprintf("%v", iface.Field(i)))
 			}
 
-			if i < iface.NumField() - 1 {
-				builder.WriteString("\n")
+			if index < len(entries) - 1 {
+				builder.WriteString("\n\n")
 			}
-		}
+		} else {
+			maxLabelSize := maxLabelSize(entries)
+			for i := 0; i < iface.NumField(); i++ {
+				field := iface.Field(i)
+				fieldName := iface.Type().Field(i).Name
 
-		if index < len(entries) - 1 {
-			builder.WriteString("\n\n")
+				buildListEntry(&builder, &field, fieldName, maxLabelSize)
+
+				if i < iface.NumField() - 1 {
+					builder.WriteString("\n")
+				}
+			}
+
+			if index < len(entries) - 1 {
+				builder.WriteString("\n\n")
+			}
 		}
 	}
 
