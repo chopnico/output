@@ -21,7 +21,6 @@ func maxLabelSize(entries []interface{}) int {
 			max = len(label)
 		}
 	}
-
 	return max
 }
 
@@ -50,7 +49,6 @@ func validProperties(p []string, v *reflect.Value) []string {
 			validProperties = append(validProperties, fieldName.Name)
 		}
 	}
-
 	return validProperties
 }
 
@@ -59,7 +57,6 @@ func padLabel(label string, maxSize int) string {
 	for i := 0; i < maxSize - len(label); i++ {
 		l += " "
 	}
-
 	return l
 }
 
@@ -88,7 +85,7 @@ func buildListEntry(builder *strings.Builder, field *reflect.Value, fieldName st
 	case reflect.Int:
 		builder.WriteString(fmt.Sprintf("%d", field.Int()))
 	default:
-		builder.WriteString(fmt.Sprintf("%v", field))
+		builder.WriteString(fmt.Sprintf("%s", field.Interface()))
 	}
 }
 
@@ -135,6 +132,5 @@ func FormatList(entries []interface{}, properties []string) string {
 			}
 		}
 	}
-
 	return builder.String()
 }
