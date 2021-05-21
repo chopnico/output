@@ -82,8 +82,10 @@ func buildListEntry(builder *strings.Builder, field *reflect.Value, fieldName st
 				builder.WriteString(fmt.Sprintf("%s", field.Index(f).String()))
 			}
 		}
-	case reflect.Int:
+	case reflect.Int, reflect.Int16, reflect.Int32, reflect.Int64:
 		builder.WriteString(fmt.Sprintf("%d", field.Int()))
+	case reflect.Bool:
+		builder.WriteString(fmt.Sprintf("%t", field.Bool()))
 	default:
 		builder.WriteString(fmt.Sprintf("%s", field.Interface()))
 	}
