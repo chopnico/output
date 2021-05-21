@@ -37,8 +37,21 @@ func maxPropertySize(properties []string) int {
 			max = len(label)
 		}
 	}
-
 	return max
+}
+
+func validProperties(p []string, v *reflect.Value) []string {
+	var validProperties []string
+
+	for i := 0; i < len(p); i++ {
+		fieldName, valid := v.Type().FieldByName(p[i])
+
+		if valid {
+			validProperties = append(validProperties, fieldName.Name)
+		}
+	}
+
+	return validProperties
 }
 
 func padLabel(label string, maxSize int) string {
@@ -67,11 +80,13 @@ func buildListEntry(builder *strings.Builder, field *reflect.Value, fieldName st
 	case reflect.Slice:
 		for f := 0; f < field.Len(); f++ {
 			if f != field.Len() - 1 {
-				builder.WriteString(fmt.Sprintf("%v, ", field.Index(f)))
+				builder.WriteString(fmt.Sprintf("%s, ", field.Index(f).String()))
 			} else {
-				builder.WriteString(fmt.Sprintf("%v", field.Index(f)))
+				builder.WriteString(fmt.Sprintf("%s", field.Index(f).String()))
 			}
 		}
+	case reflect.Int:
+		builder.WriteString(fmt.Sprintf("%d", field.Int()))
 	default:
 		builder.WriteString(fmt.Sprintf("%v", field))
 	}
@@ -81,17 +96,18 @@ func FormatList(entries []interface{}, properties []string) string {
 	builder := strings.Builder{}
 
 	for index, entry := range entries {
-		iface := reflect.Indirect(reflect.ValueOf(entry))
+		value := reflect.Indirect(reflect.ValueOf(entry))
 
 		if properties != nil {
-			maxLabelSize := maxPropertySize(properties)
-			for i := 0; i < len(properties); i++ {
-				field := iface.Field(i)
-				fieldName := iface.Type().Field(i).Name
+			validProperties := validProperties(properties, &value)
+			maxPropertySize := maxPropertySize(validProperties)
 
-				buildListEntry(&builder, &field, fieldName, maxLabelSize)
+			for i := 0; i < len(validProperties); i++ {
+				field := value.FieldByName(validProperties[i])
 
-				if i < len(properties) - 1 {
+				buildListEntry(&builder, &field, validProperties[i], maxPropertySize)
+
+				if i < len(validProperties) - 1 {
 					builder.WriteString("\n")
 				}
 			}
@@ -99,15 +115,17 @@ func FormatList(entries []interface{}, properties []string) string {
 			if index < len(entries) - 1 {
 				builder.WriteString("\n\n")
 			}
+
 		} else {
 			maxLabelSize := maxLabelSize(entries)
-			for i := 0; i < iface.NumField(); i++ {
-				field := iface.Field(i)
-				fieldName := iface.Type().Field(i).Name
+
+			for i := 0; i < value.NumField(); i++ {
+				field := value.Field(i)
+				fieldName := value.Type().Field(i).Name
 
 				buildListEntry(&builder, &field, fieldName, maxLabelSize)
 
-				if i < iface.NumField() - 1 {
+				if i < value.NumField() - 1 {
 					builder.WriteString("\n")
 				}
 			}
