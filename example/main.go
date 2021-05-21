@@ -38,5 +38,5 @@ func main() {
 	var entries []interface{}
 	entries = append(entries, gershwin, hildegard, mozart)
 
-	fmt.Println(output.FormatList(entries, []string{"Age", "Colors"}))
+	fmt.Println(output.FormatList(entries, []string{"Age", "Colors", "Name"}))
 }
