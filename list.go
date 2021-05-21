@@ -88,7 +88,11 @@ func buildListEntry(builder *strings.Builder, field *reflect.Value, fieldName st
 	case reflect.Bool:
 		builder.WriteString(fmt.Sprintf("%t", field.Bool()))
 	default:
-		builder.WriteString(fmt.Sprintf("%v", field.Interface()))
+		if field.Interface() == nil{
+			builder.WriteString("")
+		} else {
+			builder.WriteString(fmt.Sprintf("%v (%s)", field.Interface(), field.Kind()))
+		}
 	}
 }
 
