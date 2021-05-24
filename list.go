@@ -127,7 +127,6 @@ func FormatList(t *[]interface{}, p []string) string {
 
 	for i, x := range *t {
 		value := reflect.Indirect(reflect.ValueOf(x))
-		fmt.Printf("%s\n", value.Kind())
 
 		buildList(&value, &builder, p)
 
