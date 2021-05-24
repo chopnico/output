@@ -6,139 +6,133 @@ import (
 	"strings"
 )
 
-func maxLabelSize(entries []interface{}) int {
-	var labels []string
-	for _, entry := range entries {
-		iface := reflect.ValueOf(entry)
-		for i := 0; i < iface.NumField(); i++ {
-			labels = append(labels, iface.Type().Field(i).Name)
+func maxLabelSize(v *reflect.Value) int {
+	var m int
+	for i := 0; i < v.NumField(); i++ {
+		l := v.Type().Field(i).Name
+		if len(l) > m {
+			m = len(l)
 		}
 	}
-
-	var max int
-	for _, label := range labels {
-		if max < len(label) {
-			max = len(label)
-		}
-	}
-	return max
+	return m
 }
 
-func maxPropertySize(properties []string) int {
-	var labels []string
-	for i := 0; i < len(properties); i++ {
-		labels = append(labels, properties[i])
-	}
-
-	var max int
-	for _, label := range labels {
-		if max < len(label) {
-			max = len(label)
+func maxPropertyLabelSize(p []string) int {
+	var m int
+	for i := 0; i < len(p); i++ {
+		l := p[i]
+		if len(l) > m {
+			m = len(l)
 		}
 	}
-	return max
+	return m
 }
 
 func validProperties(p []string, v *reflect.Value) []string {
-	var validProperties []string
+	var vp []string
 
 	for i := 0; i < len(p); i++ {
-		fieldName, valid := v.Type().FieldByName(p[i])
-
+		f, valid := v.Type().FieldByName(p[i])
 		if valid {
-			validProperties = append(validProperties, fieldName.Name)
+			vp = append(vp, f.Name)
 		}
 	}
-	return validProperties
+	return vp
 }
 
-func padLabel(label string, maxSize int) string {
-	l := label
-	for i := 0; i < maxSize - len(label); i++ {
-		l += " "
-	}
-	return l
-}
-
-func labelExist(a []string, x string) bool {
-	for _, n := range a {
-		if x == n {
-			return true
+func fieldValueToString(v reflect.Value) string {
+	switch v.Kind() {
+	case reflect.String:
+		return fmt.Sprintf("%s", v.String())
+	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+		return fmt.Sprintf("%d", v.Int())
+	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+		return fmt.Sprintf("%d", v.Uint())
+	case reflect.Float32, reflect.Float64:
+		return fmt.Sprintf("%.2f", v.Float())
+	case reflect.Bool:
+		return fmt.Sprintf("%t", v.Bool())
+	case reflect.Array:
+		var l string
+		for i := 0; i < v.Len(); i++ {
+			l += fmt.Sprintf("%s ", fieldValueToString(v.Index(i)))
 		}
-	}
-	return false
-}
-
-func buildListEntry(builder *strings.Builder, field *reflect.Value, fieldName string, maxLabelSize int) {
-	builder.WriteString(padLabel(fieldName, maxLabelSize))
-	builder.WriteString(" : ")
-
-	switch field.Kind() {
+		return l
 	case reflect.Slice:
-		for f := 0; f < field.Len(); f++ {
-			if f != field.Len() - 1 {
-				builder.WriteString(fmt.Sprintf("%s, ", field.Index(f).String()))
+		var l string
+		for i := 0; i < v.Len(); i++ {
+			l += fmt.Sprintf("%s ", fieldValueToString(v.Index(i)))
+		}
+		return l
+	case reflect.Ptr:
+		return fmt.Sprintf("%s", fieldValueToString(v.Elem()))
+	case reflect.Struct:
+		m := maxLabelSize(&v)
+		var l string
+		for i := 0; i < v.NumField(); i++ {
+			fieldName := padLabel(v.Type().Field(i).Name, m)
+			if i == 0 {
+				l += "\n  - " + fieldName + " : "
+				l += fmt.Sprintf("%s", fieldValueToString(v.Field(i)))
 			} else {
-				builder.WriteString(fmt.Sprintf("%s", field.Index(f).String()))
+				l += "\n    " + fieldName + " : "
+				l += fmt.Sprintf("%s", fieldValueToString(v.Field(i)))
 			}
 		}
-	case reflect.Int, reflect.Int16, reflect.Int32, reflect.Int64, reflect.Uint, reflect.Uint8,
-		reflect.Uint16, reflect.Uint32, reflect.Uint64, reflect.Uintptr:
-		builder.WriteString(fmt.Sprintf("%d", field.Int()))
-	case reflect.Bool:
-		builder.WriteString(fmt.Sprintf("%t", field.Bool()))
-	case reflect.Ptr:
-		builder.WriteString(fmt.Sprintf("%s", field.Elem()))
+		return l
 	default:
-		if field.Interface() == nil || field == nil {
-			builder.WriteString("")
-		} else {
-			builder.WriteString(fmt.Sprintf("%v (%s)", field.Interface(), field.Kind()))
+		return fmt.Sprintf("%s", v.Kind())
+	}
+}
+
+func padLabel(l string, m int) string {
+	t := l
+	for i := 0; i < m - len(l); i++ {
+		t += " "
+	}
+	return t
+}
+
+func buildList(v *reflect.Value, b *strings.Builder, p []string) {
+	if p != nil {
+		pm := maxPropertyLabelSize(p)
+		vp := validProperties(p, v)
+		for i := 0; i < len(vp); i++ {
+			fieldName := padLabel(vp[i], pm)
+
+			b.WriteString(fieldName + " : ")
+			b.WriteString(fieldValueToString(v.FieldByName(vp[i])))
+
+			if i != v.Type().NumField() {
+				b.WriteString("\n")
+			}
+		}
+	} else {
+		m := maxLabelSize(v)
+		for i := 0; i < v.Type().NumField(); i++ {
+			fieldName := padLabel(v.Type().Field(i).Name, m)
+
+			b.WriteString(fieldName + " : ")
+			b.WriteString(fieldValueToString(v.Field(i)))
+
+			if i != v.Type().NumField() {
+				b.WriteString("\n")
+			}
 		}
 	}
 }
 
-func FormatList(entries []interface{}, properties []string) string {
+func FormatList(t *[]interface{}, p []string) string {
 	builder := strings.Builder{}
 
-	for index, entry := range entries {
-		value := reflect.Indirect(reflect.ValueOf(entry))
+	for i, x := range *t {
+		value := reflect.Indirect(reflect.ValueOf(x))
+		fmt.Printf("%s\n", value.Kind())
 
-		if properties != nil {
-			validProperties := validProperties(properties, &value)
-			maxPropertySize := maxPropertySize(validProperties)
+		buildList(&value, &builder, p)
 
-			for i := 0; i < len(validProperties); i++ {
-				field := value.FieldByName(validProperties[i])
-
-				buildListEntry(&builder, &field, validProperties[i], maxPropertySize)
-
-				if i < len(validProperties) - 1 {
-					builder.WriteString("\n")
-				}
-			}
-
-			if index < len(entries) - 1 {
-				builder.WriteString("\n\n")
-			}
-
-		} else {
-			maxLabelSize := maxLabelSize(entries)
-
-			for i := 0; i < value.NumField(); i++ {
-				field := value.Field(i)
-				fieldName := value.Type().Field(i).Name
-
-				buildListEntry(&builder, &field, fieldName, maxLabelSize)
-
-				if i < value.NumField() - 1 {
-					builder.WriteString("\n")
-				}
-			}
-
-			if index < len(entries) - 1 {
-				builder.WriteString("\n\n")
-			}
+		if i != len(*t) - 1 {
+			builder.WriteString("\n")
 		}
 	}
 	return builder.String()

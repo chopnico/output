@@ -7,41 +7,105 @@ import (
 	"github.com/chopnico/output"
 )
 
+type Animal interface {
+	Speak()
+}
+
+type Cow struct {
+	Name	string
+	Age			int
+	Alive		bool
+	Sound		string
+	Color		[]string
+	Weight  	float32
+	Intervals	[]int
+	Toys		*[]Toy
+	CreatedOn	time.Time
+}
+
 type Dog struct {
+	Name		string
+	Age			int
+	Alive		bool
+	Sound		string
+	Color		[]string
+	Weight		float32
+	Intervals	[]int
+	Toys		*[]Toy
+	CreatedOn	time.Time
+}
+
+type Toy struct {
 	Name string
-	Breed string
 	Age int
-	Colors []string
-	Created time.Time
+	Best [3]int
+}
+
+func (d *Dog) Speak() {
+	fmt.Println(d.Sound)
+}
+
+func (c *Cow) Speak() {
+	fmt.Println(c.Sound)
+}
+
+func Speak(a Animal) {
+	a.Speak()
 }
 
 func main() {
-	gershwin := Dog{
-		Name: "Gershwin",
-		Breed: "Cardigan Welsh Corgi",
-		Age: 5,
-		Colors: []string{"White", "Gray", "Brown", "Black"},
-		Created: time.Now(),
+	cow := Cow{
+		Name: "Will",
+		Age: 3,
+		Alive: true,
+		Sound: "moooo",
+		Color: []string{"white", "black"},
+		Weight: 3299.5,
+		Intervals: []int{1,20,30,100},
+		Toys: &[]Toy{
+			{
+				Name: "brush",
+				Age: 3,
+				Best: [3]int{1, 3, 5},
+			},
+			{
+				Name: "ball",
+				Age: 4,
+				Best: [3]int{1, 3, 5},
+			},
+		},
+		CreatedOn: time.Now(),
 	}
 
-	hildegard := Dog{
-		Name: "Hildegard",
-		Breed: "Cardigan Welsh Corgi",
-		Age: 4,
-		Colors: []string{"Black", "White", "Brown"},
-		Created: time.Now(),
-	}
-
-	mozart := Dog{
-		Name: "Mozart",
-		Breed: "Cardigan Welsh Corgi",
+	dog := Dog{
+		Name: "Rain",
 		Age: 2,
-		Colors: []string{"Brown", "White"},
-		Created: time.Now(),
+		Alive: true,
+		Sound: "bark, bark",
+		Color: []string{"brown", "black", "white"},
+		Weight: 34.7,
+		Intervals: []int{1,20,10,34},
+		Toys: &[]Toy{
+			{
+				Name: "rope",
+				Age: 8,
+				Best: [3]int{1, 3, 5},
+
+			},
+			{
+				Name: "ball",
+				Age: 10,
+				Best: [3]int{1, 3, 5},
+			},
+		},
+		CreatedOn: time.Now(),
 	}
 
-	var entries []interface{}
-	entries = append(entries, gershwin, hildegard, mozart)
+	var animals []interface{}
 
-	fmt.Println(output.FormatList(entries, nil))
+	animals = append(animals, &dog, &cow)
+
+	properties := []string{"Name", "Age", "Weight", "Toys", "Color", "CreatedOn"}
+
+	fmt.Printf("%s", output.FormatList(&animals, properties))
 }
