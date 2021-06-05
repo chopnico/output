@@ -105,7 +105,8 @@ func main() {
 
 	animals = append(animals, &dog, &cow)
 
-	properties := []string{"Name", "Age", "Weight", "Toys", "Color", "CreatedOn"}
+	//properties := []string{"Name", "Age", "Weight", "Toys", "Color", "CreatedOn"}
+	var p []string
 
-	fmt.Printf("%s", output.FormatList(&animals, properties))
+	fmt.Printf("%s", output.FormatList(&animals, p))
 }
