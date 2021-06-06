@@ -1,4 +1,4 @@
-package main
+package output
 
 import (
 	"strings"
@@ -14,7 +14,7 @@ func FormatJson(t *[]interface{}) string {
 		s := structs.New((*t)[i])
 		j, _ := json.Marshal(s.Map())
 
-		b.WriteString(string(j))
+		b.WriteString(string(j) + "\n")
 
 		if i != len((*t)) - 1 {
 			b.WriteString("\n")
