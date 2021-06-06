@@ -3,16 +3,13 @@ package output
 import (
 	"strings"
 	"encoding/json"
-
-	"github.com/chopnico/structs"
 )
 
 func FormatPrettyJson(t *[]interface{}) string {
 	b := strings.Builder{}
 
 	for i := 0; i < len((*t)); i++ {
-		s := structs.New((*t)[i])
-		j, _ := json.MarshalIndent(s.Map(), "", "  ")
+		j, _ := json.MarshalIndent((*t)[i], "", "  ")
 
 		b.WriteString(string(j) + "\n")
 
@@ -27,8 +24,7 @@ func FormatJson(t *[]interface{}) string {
 	b := strings.Builder{}
 
 	for i := 0; i < len((*t)); i++ {
-		s := structs.New((*t)[i])
-		j, _ := json.Marshal(s.Map())
+		j, _ := json.Marshal((*t)[i])
 
 		b.WriteString(string(j) + "\n")
 
