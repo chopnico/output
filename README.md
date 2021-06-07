@@ -87,6 +87,7 @@ func main() {
     properties := []string{"Name", "Age", "Weight", "Toys", "Color", "CreatedOn"}
     
     fmt.Printf("%s\n", output.FormatList(&animals, properties))
+}
 ```
 
 Will output:
