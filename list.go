@@ -7,6 +7,8 @@ import (
 	"github.com/chopnico/structs"
 )
 
+// create the label based on the max size
+// essentially, a glorified padder...
 func label(l string, m int) string {
 	s := l
 	for i := 0; i < m; i++ {
@@ -17,20 +19,28 @@ func label(l string, m int) string {
 	return s
 }
 
-func maxLabelSize(l []string) int {
+// get the max label size
+// this will determine which field has the most characters
+func maxLabelSize(t interface{}, p []string) int {
 	var max int
-	for i := range l {
-		if max < len(l[i]) {
-			max = len(l[i])
+	s := structs.New(t)
+	for i := range p {
+		if _, ok := s.FieldOk(p[i]); ok {
+			if max < len(p[i]) {
+				max = len(p[i])
+			}
 		}
 	}
 	return max
 }
 
+// the function to actually build the list
+// this uses a forked version of faiths' struct package
+// github.com/chopnico/structs
 func list(t interface{}, p []string, b *strings.Builder) {
 	if p == nil {
 		if structs.IsStruct(t) {
-			m := maxLabelSize(structs.Names(t))
+			m := maxLabelSize(t, p)
 			s := structs.New(t)
 			n := s.Names()
 
@@ -47,7 +57,7 @@ func list(t interface{}, p []string, b *strings.Builder) {
 		}
 	} else {
 		if structs.IsStruct(t) {
-			m := maxLabelSize(p)
+			m := maxLabelSize(t, p)
 			s := structs.New(t)
 
 			for i := range p {
@@ -64,15 +74,25 @@ func list(t interface{}, p []string, b *strings.Builder) {
 	}
 }
 
-func FormatList(t *[]interface{}, p []string) string {
+// exported function to print struct items as a list
+func FormatItemsAsList(t []interface{}, p []string) string {
 	b := strings.Builder{}
 
-	for i := 0; i < len((*t)); i++ {
-		list((*t)[i], p, &b)
+	for i := 0; i < len(t); i++ {
+		list(t[i], p, &b)
 
-		if i != len((*t)) - 1 {
+		if i != len(t)-1 {
 			b.WriteString("\n")
 		}
 	}
+	return b.String()
+}
+
+// exported fuction to print a single struct item as a list
+func FormatItemAsList(t interface{}, p []string) string {
+	b := strings.Builder{}
+
+	list(t, p, &b)
+
 	return b.String()
 }

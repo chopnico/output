@@ -107,7 +107,7 @@ func main() {
 
 	properties := []string{"Name", "Age", "Weight", "Toys", "Color", "CreatedOn"}
 
-	fmt.Printf("%s\n", output.FormatList(&animals, properties))
-	fmt.Printf("%s\n", output.FormatJson(&animals))
-	fmt.Printf("%s", output.FormatPrettyJson(&animals))
+	fmt.Printf("%s\n", output.FormatItemsAsList(animals, properties))
+	fmt.Printf("%s\n", output.FormatItemsAsJson(animals))
+	fmt.Printf("%s", output.FormatItemsAsPrettyJson(animals))
 }

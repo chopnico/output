@@ -1,6 +1,6 @@
 # output
 
-Inspired (a little) by PowerShell's object printing capabilities, output prints structs in a readable way.
+an opinionated printer library for structs
 
 ## Install
 
@@ -83,14 +83,14 @@ func main() {
     }
     
     var animals []interface{}
-    animals = append(animals, &dog, &cow)
+    animals = append(animals, dog, cow)
     properties := []string{"Name", "Age", "Weight", "Toys", "Color", "CreatedOn"}
     
-    fmt.Printf("%s\n", output.FormatList(&animals, properties))
+    fmt.Printf("%s\n", output.FormatItemsAsList(animals, properties))
 }
 ```
 
-Will output:
+will output:
 
 ``` sh
 Name      : Rain
