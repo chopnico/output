@@ -6,7 +6,7 @@ import(
 	"github.com/olekukonko/tablewriter"
 )
 
-func PrintTable(data [][]string, header []string) string {
+func FormatTable(data [][]string, header []string) string {
 	b := &strings.Builder{}
 	t := tablewriter.NewWriter(b)
 	t.SetHeader(header)
