@@ -28,7 +28,7 @@ func FormatItemAsPrettyJson(t interface{}) string {
 
 // exported function to print items as pretty json
 func FormatItemsAsPrettyJson(t interface{}) string {
-	a := reflect.ValueOf(t)
+	a := value(reflect.ValueOf(t))
 	b := strings.Builder{}
 
 	for i := 0; i < a.Len(); i++ {
@@ -45,7 +45,7 @@ func FormatItemsAsPrettyJson(t interface{}) string {
 
 // exported function to print items as json
 func FormatItemsAsJson(t interface{}) string {
-	a := reflect.ValueOf(t)
+	a := value(reflect.ValueOf(t))
 	b := strings.Builder{}
 
 	for i := 0; i < a.Len(); i++ {

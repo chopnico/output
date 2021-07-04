@@ -77,7 +77,7 @@ func list(t interface{}, p []string, b *strings.Builder) {
 
 // exported function to print struct items as a list
 func FormatItemsAsList(t interface{}, p []string) string {
-	a := reflect.ValueOf(t)
+	a := value(reflect.ValueOf(t))
 	b := strings.Builder{}
 
 	for i := 0; i < a.Len(); i++ {

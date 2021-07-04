@@ -108,8 +108,11 @@ func main() {
 	properties := []string{"Name", "Age", "Weight", "Toys", "Color", "CreatedOn"}
 
 	fmt.Printf("%s\n", output.FormatItemsAsList(dogs, properties))
+	fmt.Printf("%s\n", output.FormatItemsAsList(&dogs, properties))
 	fmt.Printf("%s\n", output.FormatItemAsList(dog, nil))
-	fmt.Printf("%s\n", output.FormatItemAsList(cow, nil))
+	fmt.Printf("%s\n", output.FormatItemAsList(&cow, nil))
 	fmt.Printf("%s\n", output.FormatItemsAsJson(dogs))
+	fmt.Printf("%s\n", output.FormatItemsAsJson(&dogs))
 	fmt.Printf("%s", output.FormatItemsAsPrettyJson(dogs))
+	fmt.Printf("%s", output.FormatItemsAsPrettyJson(&dogs))
 }
