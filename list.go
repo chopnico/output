@@ -40,9 +40,9 @@ func maxLabelSize(t interface{}, p []string) int {
 func list(t interface{}, p []string, b *strings.Builder) {
 	if p == nil {
 		if structs.IsStruct(t) {
-			m := maxLabelSize(t, p)
 			s := structs.New(t)
 			n := s.Names()
+			m := maxLabelSize(t, n)
 
 			for i := range n {
 				l := label(n[i], m)
