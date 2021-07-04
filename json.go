@@ -2,6 +2,7 @@ package output
 
 import (
 	"encoding/json"
+	"reflect"
 	"strings"
 )
 
@@ -26,15 +27,16 @@ func FormatItemAsPrettyJson(t interface{}) string {
 }
 
 // exported function to print items as pretty json
-func FormatItemsAsPrettyJson(t []interface{}) string {
+func FormatItemsAsPrettyJson(t interface{}) string {
+	a := reflect.ValueOf(t)
 	b := strings.Builder{}
 
-	for i := 0; i < len(t); i++ {
-		j, _ := json.MarshalIndent(t[i], "", "  ")
+	for i := 0; i < a.Len(); i++ {
+		j, _ := json.MarshalIndent(a.Index(i).Interface(), "", "  ")
 
 		b.WriteString(string(j) + "\n")
 
-		if i != len(t)-1 {
+		if i != a.Len()-1 {
 			b.WriteString("\n")
 		}
 	}
@@ -42,17 +44,19 @@ func FormatItemsAsPrettyJson(t []interface{}) string {
 }
 
 // exported function to print items as json
-func FormatItemsAsJson(t []interface{}) string {
+func FormatItemsAsJson(t interface{}) string {
+	a := reflect.ValueOf(t)
 	b := strings.Builder{}
 
-	for i := 0; i < len(t); i++ {
-		j, _ := json.Marshal(t[i])
+	for i := 0; i < a.Len(); i++ {
+		j, _ := json.Marshal(a.Index(i).Interface())
 
 		b.WriteString(string(j) + "\n")
 
-		if i != len(t)-1 {
+		if i != a.Len()-1 {
 			b.WriteString("\n")
 		}
 	}
+
 	return b.String()
 }

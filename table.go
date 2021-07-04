@@ -1,6 +1,6 @@
 package output
 
-import(
+import (
 	"strings"
 
 	"github.com/olekukonko/tablewriter"

@@ -3,6 +3,7 @@ package output
 import (
 	"fmt"
 	"strings"
+	"reflect"
 
 	"github.com/chopnico/structs"
 )
@@ -75,13 +76,14 @@ func list(t interface{}, p []string, b *strings.Builder) {
 }
 
 // exported function to print struct items as a list
-func FormatItemsAsList(t []interface{}, p []string) string {
+func FormatItemsAsList(t interface{}, p []string) string {
+	a := reflect.ValueOf(t)
 	b := strings.Builder{}
 
-	for i := 0; i < len(t); i++ {
-		list(t[i], p, &b)
+	for i := 0; i < a.Len(); i++ {
+		list(a.Index(i).Interface(), p, &b)
 
-		if i != len(t)-1 {
+		if i != a.Len()-1 {
 			b.WriteString("\n")
 		}
 	}

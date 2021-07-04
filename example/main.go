@@ -11,6 +11,8 @@ type Animal interface {
 	Speak()
 }
 
+type Dogs []Dog
+
 type Cow struct {
 	Name      string
 	Age       int
@@ -100,14 +102,14 @@ func main() {
 		CreatedOn: time.Now(),
 	}
 
-	var animals []interface{}
-
-	animals = append(animals, &dog, &cow)
+	var dogs Dogs
+	dogs = append(dogs, dog)
 
 	properties := []string{"Name", "Age", "Weight", "Toys", "Color", "CreatedOn"}
 
-	fmt.Printf("%s\n", output.FormatItemsAsList(animals, properties))
+	fmt.Printf("%s\n", output.FormatItemsAsList(dogs, properties))
 	fmt.Printf("%s\n", output.FormatItemAsList(dog, nil))
-	fmt.Printf("%s\n", output.FormatItemsAsJson(animals))
-	fmt.Printf("%s", output.FormatItemsAsPrettyJson(animals))
+	fmt.Printf("%s\n", output.FormatItemAsList(cow, nil))
+	fmt.Printf("%s\n", output.FormatItemsAsJson(dogs))
+	fmt.Printf("%s", output.FormatItemsAsPrettyJson(dogs))
 }
