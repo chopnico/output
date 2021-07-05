@@ -96,9 +96,10 @@ func FormatItemsAsList(t interface{}, p []string) string {
 
 // exported fuction to print a single struct item as a list
 func FormatItemAsList(t interface{}, p []string) string {
+	a := value(reflect.ValueOf(t))
 	b := strings.Builder{}
 
-	list(t, p, &b)
+	list(a.Interface(), p, &b)
 
 	return b.String()
 }
