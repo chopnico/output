@@ -15,7 +15,7 @@ func FormatItemAsJson(t interface{}) string {
 	b := strings.Builder{}
 
 	j, _ := json.Marshal(t)
-	b.WriteString(string(j) + "\n")
+	b.WriteString(string(j))
 
 	return b.String()
 }
@@ -25,7 +25,7 @@ func FormatItemAsPrettyJson(t interface{}) string {
 	b := strings.Builder{}
 
 	j, _ := json.MarshalIndent(t, "", "  ")
-	b.WriteString(string(j) + "\n")
+	b.WriteString(string(j))
 
 	return b.String()
 }
@@ -39,10 +39,6 @@ func FormatItemsAsPrettyJson(t interface{}) string {
 		j, _ := json.MarshalIndent(a.Index(i).Interface(), "", "  ")
 
 		b.WriteString(string(j) + "\n")
-
-		if i != a.Len()-1 {
-			b.WriteString("\n")
-		}
 	}
 	return b.String()
 }
@@ -56,10 +52,6 @@ func FormatItemsAsJson(t interface{}) string {
 		j, _ := json.Marshal(a.Index(i).Interface())
 
 		b.WriteString(string(j) + "\n")
-
-		if i != a.Len()-1 {
-			b.WriteString("\n")
-		}
 	}
 
 	return b.String()
